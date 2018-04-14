@@ -114,10 +114,10 @@ Matrix& Matrix::operator=(const Matrix & m)
 		if (width != m.width || height != m.height) {
 			if (values != nullptr)
 				delete[] values;
-			values = new double[width * height];
 			width = m.width;
 			height = m.height;
 			size = m.size;
+			values = new double[width * height];
 		}
 		for (int i = 0; i < size; ++i)
 			values[i] = m.values[i];
