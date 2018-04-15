@@ -24,7 +24,7 @@ Matrix::Matrix(const Matrix & m)
 	width = m.width;
 	height = m.height;
 	size = m.size;
-	values = new double[width * height];
+	values = new double[size];
 	for (int i = 0; i < size; ++i)
 		values[i] = m.values[i];
 }
@@ -89,7 +89,7 @@ Matrix Matrix::operator-(const Matrix & m)
 Matrix Matrix::operator*(const Matrix & m)
 {
 	Matrix matrix(height, m.width);
-	int value = 0;
+	double value = 0;
 	for (int i = 0; i < height; ++i)
 		for (int j = 0; j < m.width; ++j) {
 			for (int k = 0; k < width; ++k)
@@ -117,7 +117,7 @@ Matrix& Matrix::operator=(const Matrix & m)
 			width = m.width;
 			height = m.height;
 			size = m.size;
-			values = new double[width * height];
+			values = new double[size];
 		}
 		for (int i = 0; i < size; ++i)
 			values[i] = m.values[i];

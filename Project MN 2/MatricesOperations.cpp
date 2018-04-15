@@ -1,6 +1,8 @@
 #include "MatricesOperations.h"
 
 #include <cmath>
+#include <ctime>
+#include <iostream>
 #include "Matrix.h"
 
 #define RES_NORM_LIMIT 0.000000001
@@ -28,7 +30,7 @@ Matrix MatricesOperations::createBandMatrix(double a1, double a2, double a3, int
 	return mat;
 }
 
-Matrix MatricesOperations::createSpecVectorB(double f, int n)
+Matrix MatricesOperations::createSpecVectorB(int f, int n)
 {
 	Matrix vect(n, 1);
 	for (int i = 0; i < n; ++i)
@@ -49,12 +51,61 @@ void MatricesOperations::loadVectorB(Matrix vectorB)
 
 Matrix MatricesOperations::solveJacobi()
 {
-	return Matrix();
+	int height = vectorB.getHeight();
+	Matrix resultVect(height, 1);
+	Matrix copyResultVect(height, 1, 1);
+	Matrix residuum(height, 1);
+	//Matrix tmpVect1(vectorB.getHeight(), 1, 0);
+	//Matrix tmpVect2(vectorB.getHeight(), 1, 0);
+	double tmp = 0;
+	clock_t start, end;
+	iterations = 0;
+	start = clock();
+	while (true) {
+		++iterations;
+		for (int i = 0; i < height; ++i) {
+			//for (int j = 0; j < i; ++j)
+			//	tmp += (a(i, j)*copyResultVect(j));
+			//for (int j = i + 1; j < height; ++j)
+			//	tmp += (a(i, j)*copyResultVect(j));
+			for (int j = 0; j < height; ++j)
+				tmp += a(i, j)*copyResultVect(j);
+			tmp -= a(i, i)*copyResultVect(i);
+			resultVect(i) = (vectorB(i) - tmp) / a(i, i);
+			tmp = 0;
+		}
+		residuum = (a * resultVect) - vectorB;
+		std::cout << calculateVectorNorm(residuum) << "   ";
+		if (calculateVectorNorm(residuum) < RES_NORM_LIMIT)
+			break;
+		copyResultVect = resultVect;
+	}
+	end = clock();
+	duration = (end - start) / (double)CLOCKS_PER_SEC;
+	return resultVect;
 }
 
 Matrix MatricesOperations::solveGS()
 {
 	return Matrix();
+}
+
+double MatricesOperations::calculateVectorNorm(Matrix vector)
+{
+	double tmp = 0;
+	for (int i = 0; i < vector.getHeight(); ++i)
+		tmp += vector(i) * vector(i);
+	return sqrt(tmp);
+}
+
+double MatricesOperations::getDurationTime()
+{
+	return duration;
+}
+
+int MatricesOperations::getIterations()
+{
+	return iterations;
 }
 
 MatricesOperations::~MatricesOperations()
