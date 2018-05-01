@@ -35,6 +35,15 @@ void Matrix::zero()
 		values[i] = 0;
 }
 
+void Matrix::print(int n, int m)
+{
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j)
+			std::cout << (*this)(i, j) << " ";
+		cout << endl;
+	}
+}
+
 int Matrix::getWidth()
 {
 	return width;

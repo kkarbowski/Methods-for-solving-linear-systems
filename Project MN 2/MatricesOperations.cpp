@@ -1,11 +1,10 @@
 #include "MatricesOperations.h"
 
 #include <cmath>
-#include <ctime>
+//#include <ctime>
+#include <chrono>
 #include <iostream>
 #include "Matrix.h"
-
-#define RES_NORM_LIMIT 0.000000001
 
 
 MatricesOperations::MatricesOperations()
@@ -30,6 +29,14 @@ Matrix MatricesOperations::createBandMatrix(double a1, double a2, double a3, int
 	return mat;
 }
 
+Matrix MatricesOperations::createIdentityMatrix(int n)
+{
+	Matrix mat(n, n, 0);
+	for (int i = 0; i < n; ++i)
+		mat(i, i) = 1;
+	return mat;
+}
+
 Matrix MatricesOperations::createSpecVectorB(int f, int n)
 {
 	Matrix vect(n, 1);
@@ -39,17 +46,17 @@ Matrix MatricesOperations::createSpecVectorB(int f, int n)
 	return vect;
 }
 
-void MatricesOperations::loadMatrixA(Matrix a)
-{
-	this->a = a;
-}
+//void MatricesOperations::loadMatrixA(Matrix a)
+//{
+//	this->a = a;
+//}
+//
+//void MatricesOperations::loadVectorB(Matrix vectorB)
+//{
+//	this->vectorB = vectorB;
+//}
 
-void MatricesOperations::loadVectorB(Matrix vectorB)
-{
-	this->vectorB = vectorB;
-}
-
-Matrix MatricesOperations::solveJacobi()
+Matrix MatricesOperations::solveJacobi(Matrix a, Matrix vectorB, double residuumNormLimit)
 {
 	int height = vectorB.getHeight();
 	Matrix resultVect(height, 1);
@@ -58,9 +65,10 @@ Matrix MatricesOperations::solveJacobi()
 	//Matrix tmpVect1(vectorB.getHeight(), 1, 0);
 	//Matrix tmpVect2(vectorB.getHeight(), 1, 0);
 	double tmp = 0;
-	clock_t start, end;
+	//clock_t start, end;
 	iterations = 0;
-	start = clock();
+
+	auto begin = std::chrono::high_resolution_clock::now();
 	while (true) {
 		++iterations;
 		for (int i = 0; i < height; ++i) {
@@ -70,24 +78,105 @@ Matrix MatricesOperations::solveJacobi()
 			//	tmp += (a(i, j)*copyResultVect(j));
 			for (int j = 0; j < height; ++j)
 				tmp += a(i, j)*copyResultVect(j);
-			tmp -= a(i, i)*copyResultVect(i);
+			tmp -= a(i, i)*copyResultVect(i);	// (-) j==i element
 			resultVect(i) = (vectorB(i) - tmp) / a(i, i);
 			tmp = 0;
 		}
 		residuum = (a * resultVect) - vectorB;
-		std::cout << calculateVectorNorm(residuum) << "   ";
-		if (calculateVectorNorm(residuum) < RES_NORM_LIMIT)
+		//std::cout << calculateVectorNorm(residuum) << "   "; // COUT
+		if (calculateVectorNorm(residuum) < residuumNormLimit)
 			break;
 		copyResultVect = resultVect;
 	}
-	end = clock();
-	duration = (end - start) / (double)CLOCKS_PER_SEC;
+	auto end = std::chrono::high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count()/(double)1000000000;
 	return resultVect;
 }
 
-Matrix MatricesOperations::solveGS()
+Matrix MatricesOperations::solveGS(Matrix a, Matrix vectorB, double residuumNormLimit)
 {
-	return Matrix();
+	int height = vectorB.getHeight();
+	Matrix resultVect(height, 1);
+	Matrix copyResultVect(height, 1, 1);
+	Matrix residuum(height, 1);
+	//Matrix tmpVect1(vectorB.getHeight(), 1, 0);
+	//Matrix tmpVect2(vectorB.getHeight(), 1, 0);
+	double tmp = 0;
+	//clock_t start, end;
+	iterations = 0;
+
+	//start = clock();
+	auto begin = std::chrono::high_resolution_clock::now();
+	while (true) {
+		++iterations;
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < i; ++j)
+				tmp += (a(i, j)*resultVect(j));
+			for (int j = i + 1; j < height; ++j)
+				tmp += (a(i, j)*copyResultVect(j));
+			//for (int j = 0; j < height; ++j)
+			//	tmp += a(i, j)*copyResultVect(j);
+			//tmp -= a(i, i)*copyResultVect(i);	// (-) j=i element
+			resultVect(i) = (vectorB(i) - tmp) / a(i, i);
+			tmp = 0;
+		}
+		residuum = (a * resultVect) - vectorB;
+		//std::cout << calculateVectorNorm(residuum) << "   "; //COUT
+		if (calculateVectorNorm(residuum) < residuumNormLimit)
+			break;
+		copyResultVect = resultVect;
+	}
+	//end = clock();
+	//duration = (end - start) / (double)CLOCKS_PER_SEC;
+	auto end = std::chrono::high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count()/(double)1000000000;
+	return resultVect;
+}
+
+Matrix MatricesOperations::solveLUfactorization(Matrix a, Matrix vectorB)
+{
+	int n = vectorB.getHeight();
+	Matrix resultVect(n, 1);
+	Matrix vectY(n, 1);
+	Matrix matU = a;
+	Matrix matL = createIdentityMatrix(n);
+	double tmp = 0;
+	//clock_t start, end;
+	iterations = -1;
+
+	auto begin = std::chrono::high_resolution_clock::now();
+	// Calculating LU
+	for (int i = 0; i < n - 1; ++i) {
+		for (int j = i + 1; j < n; ++j) {
+			matL(j, i) = matU(j, i) / matU(i, i);
+			for (int k = i; k < n; ++k)
+				matU(j, k) = matU(j, k) - (matL(j, i)*matU(i, k));
+		}
+		//std::cout << i << " ";
+	}
+	//std::cout << std::endl;
+
+	// LY=B
+	//vectY(0) = vectorB(0);
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < i; ++j)
+			tmp += matL(i, j)*vectY(j);
+		vectY(i) = vectorB(i) - tmp;
+		tmp = 0;
+	}
+
+	// UX=Y
+	//resultVect(n - 1) = vectY(n - 1);
+	for (int i = n - 1; i >= 0; --i) {
+		for (int j = i + 1; j < n; ++j)
+			tmp += matU(i, j)*resultVect(j);
+		resultVect(i) = (vectY(i) - tmp) / matU(i, i);
+		tmp = 0;	
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count()/(double)1000000000;
+	return resultVect;
 }
 
 double MatricesOperations::calculateVectorNorm(Matrix vector)

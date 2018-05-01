@@ -12,6 +12,8 @@ public:
 	Matrix(const Matrix& m);
 
 	void zero();
+
+	void print(int n, int m);
 	int getWidth();
 	int getHeight();
 	int getSize();
