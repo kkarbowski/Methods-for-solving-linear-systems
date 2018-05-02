@@ -1,9 +1,7 @@
-#include "MatricesOperations.h"
-
 #include <cmath>
-//#include <ctime>
 #include <chrono>
 #include <iostream>
+#include "MatricesOperations.h"
 #include "Matrix.h"
 
 
@@ -46,36 +44,19 @@ Matrix MatricesOperations::createSpecVectorB(int f, int n)
 	return vect;
 }
 
-//void MatricesOperations::loadMatrixA(Matrix a)
-//{
-//	this->a = a;
-//}
-//
-//void MatricesOperations::loadVectorB(Matrix vectorB)
-//{
-//	this->vectorB = vectorB;
-//}
-
 Matrix MatricesOperations::solveJacobi(Matrix a, Matrix vectorB, double residuumNormLimit)
 {
 	int height = vectorB.getHeight();
 	Matrix resultVect(height, 1);
 	Matrix copyResultVect(height, 1, 1);
 	Matrix residuum(height, 1);
-	//Matrix tmpVect1(vectorB.getHeight(), 1, 0);
-	//Matrix tmpVect2(vectorB.getHeight(), 1, 0);
 	double tmp = 0;
-	//clock_t start, end;
 	iterations = 0;
 
 	auto begin = std::chrono::high_resolution_clock::now();
 	while (true) {
 		++iterations;
 		for (int i = 0; i < height; ++i) {
-			//for (int j = 0; j < i; ++j)
-			//	tmp += (a(i, j)*copyResultVect(j));
-			//for (int j = i + 1; j < height; ++j)
-			//	tmp += (a(i, j)*copyResultVect(j));
 			for (int j = 0; j < height; ++j)
 				tmp += a(i, j)*copyResultVect(j);
 			tmp -= a(i, i)*copyResultVect(i);	// (-) j==i element
@@ -83,7 +64,10 @@ Matrix MatricesOperations::solveJacobi(Matrix a, Matrix vectorB, double residuum
 			tmp = 0;
 		}
 		residuum = (a * resultVect) - vectorB;
-		//std::cout << calculateVectorNorm(residuum) << "   "; // COUT
+		//{
+		//	std::cout << calculateVectorNorm(residuum) << std::endl; //COUT
+		//	if (iterations == 9) break;
+		//}
 		if (calculateVectorNorm(residuum) < residuumNormLimit)
 			break;
 		copyResultVect = resultVect;
@@ -99,13 +83,9 @@ Matrix MatricesOperations::solveGS(Matrix a, Matrix vectorB, double residuumNorm
 	Matrix resultVect(height, 1);
 	Matrix copyResultVect(height, 1, 1);
 	Matrix residuum(height, 1);
-	//Matrix tmpVect1(vectorB.getHeight(), 1, 0);
-	//Matrix tmpVect2(vectorB.getHeight(), 1, 0);
 	double tmp = 0;
-	//clock_t start, end;
 	iterations = 0;
 
-	//start = clock();
 	auto begin = std::chrono::high_resolution_clock::now();
 	while (true) {
 		++iterations;
@@ -114,20 +94,18 @@ Matrix MatricesOperations::solveGS(Matrix a, Matrix vectorB, double residuumNorm
 				tmp += (a(i, j)*resultVect(j));
 			for (int j = i + 1; j < height; ++j)
 				tmp += (a(i, j)*copyResultVect(j));
-			//for (int j = 0; j < height; ++j)
-			//	tmp += a(i, j)*copyResultVect(j);
-			//tmp -= a(i, i)*copyResultVect(i);	// (-) j=i element
 			resultVect(i) = (vectorB(i) - tmp) / a(i, i);
 			tmp = 0;
 		}
 		residuum = (a * resultVect) - vectorB;
-		//std::cout << calculateVectorNorm(residuum) << "   "; //COUT
+		//{
+		//	std::cout << calculateVectorNorm(residuum) << std::endl; //COUT
+		//	if (iterations == 9) break;
+		//}
 		if (calculateVectorNorm(residuum) < residuumNormLimit)
 			break;
 		copyResultVect = resultVect;
 	}
-	//end = clock();
-	//duration = (end - start) / (double)CLOCKS_PER_SEC;
 	auto end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count()/(double)1000000000;
 	return resultVect;
@@ -141,7 +119,6 @@ Matrix MatricesOperations::solveLUfactorization(Matrix a, Matrix vectorB)
 	Matrix matU = a;
 	Matrix matL = createIdentityMatrix(n);
 	double tmp = 0;
-	//clock_t start, end;
 	iterations = -1;
 
 	auto begin = std::chrono::high_resolution_clock::now();
@@ -152,12 +129,9 @@ Matrix MatricesOperations::solveLUfactorization(Matrix a, Matrix vectorB)
 			for (int k = i; k < n; ++k)
 				matU(j, k) = matU(j, k) - (matL(j, i)*matU(i, k));
 		}
-		//std::cout << i << " ";
 	}
-	//std::cout << std::endl;
 
 	// LY=B
-	//vectY(0) = vectorB(0);
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < i; ++j)
 			tmp += matL(i, j)*vectY(j);
@@ -166,7 +140,6 @@ Matrix MatricesOperations::solveLUfactorization(Matrix a, Matrix vectorB)
 	}
 
 	// UX=Y
-	//resultVect(n - 1) = vectY(n - 1);
 	for (int i = n - 1; i >= 0; --i) {
 		for (int j = i + 1; j < n; ++j)
 			tmp += matU(i, j)*resultVect(j);

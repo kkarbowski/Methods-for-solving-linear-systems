@@ -4,13 +4,12 @@
 #include "MatricesOperations.h"
 
 using namespace std;
-//165351
+
 int main() {
 	Matrix bandMatrix, vectorB, resultMatrix;
 	MatricesOperations matOp;
 	int n;
-	double	residuumNormLimit, // 10^-9
-		residuumNorm; 
+	double	residuumNormLimit;
 
 	// Zadanie A
 	if (0) {
@@ -18,7 +17,9 @@ int main() {
 		residuumNormLimit = 0.000000001; // 10^-9
 		bandMatrix = matOp.createBandMatrix(5 + 3, -1, -1, n); 
 		vectorB = matOp.createSpecVectorB(5, n);
+		cout << "Macierz A: \n";
 		bandMatrix.print(10, 10);
+		cout << "Wektor b: \n";
 		vectorB.print(10, 1);
 	}
 
@@ -29,9 +30,9 @@ int main() {
 		bandMatrix = matOp.createBandMatrix(5 + 3, -1, -1, n); 
 		vectorB = matOp.createSpecVectorB(5, n); 
 		matOp.solveJacobi(bandMatrix, vectorB, residuumNormLimit);
-		cout << "Jacobi: Czas: " << matOp.getDurationTime() << "   Iteracje: " << matOp.getIterations() << endl;
+		cout << "Jacobi: Czas: " << matOp.getDurationTime() << "s   Iteracje: " << matOp.getIterations() << endl;
 		matOp.solveGS(bandMatrix, vectorB, residuumNormLimit);
-		cout << "Gauss-Seidel: Czas: " << matOp.getDurationTime() << "   Iteracje: " << matOp.getIterations() << endl;
+		cout << "Gauss-Seidel: Czas: " << matOp.getDurationTime() << "s   Iteracje: " << matOp.getIterations() << endl;
 	}
 
 	// Zadanie C
@@ -40,13 +41,13 @@ int main() {
 		residuumNormLimit = 0.000000001; // 10^-9
 		bandMatrix = matOp.createBandMatrix(3, -1, -1, n);
 		vectorB = matOp.createSpecVectorB(5, n);
-		//matOp.solveJacobi(bandMatrix, vectorB, residuumNormLimit);
-		matOp.solveGS(bandMatrix, vectorB, residuumNormLimit);
+		matOp.solveJacobi(bandMatrix, vectorB, residuumNormLimit);
+		//matOp.solveGS(bandMatrix, vectorB, residuumNormLimit);
 	}
 
 	// Zadanie D	
 	if (0) {
-		n = 1951;
+		n = 951;
 		residuumNormLimit = 0.000000001; // 10^-9
 		bandMatrix = matOp.createBandMatrix(3, -1, -1, n);
 		vectorB = matOp.createSpecVectorB(5, n);
@@ -56,7 +57,7 @@ int main() {
 	}
 
 	// Zadanie E
-	if (1) {
+	if (0) {
 		int n[9] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000 };
 		double times[3];
 		char textFormat[] = "|%10.10s|%15s|%15s|%15s|\n";
@@ -68,7 +69,7 @@ int main() {
 		printf(textFormat, "Wartosc n", "Jacobi", "Gauss-Seidel", "Faktoryzcja LU");
 		printf(textFormat, sep, sep, sep, sep);
 
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < 9; ++i) {
 			bandMatrix = matOp.createBandMatrix(5 + 3, -1, -1, n[i]);
 			vectorB = matOp.createSpecVectorB(5, n[i]);
 
@@ -81,60 +82,7 @@ int main() {
 			printf(valuesFormat, n[i], times[0], times[1], times[2]);
 		}
 	}
+
 	getchar();
 	return 0;
 }
-
-//printf("|%5s|%5s|%5s|%5s|", arg0, arg1, arg2, arg3);
-
-
-
-////test
-//Matrix A(4, 4);
-//vectorB = matOp.createSpecVectorB(5, 4); // Wszystkie Zadania
-//A(0) = 2, A(1) = 1, A(2) = 1, A(3) = 0;
-//A(4) = 4, A(5) = 3, A(6) = 3, A(7) = 1;
-//A(8) = 8, A(9) = 7, A(10) = 9, A(11) = 5;
-//A(12) = 6, A(13) = 7, A(14) = 9, A(15) = 8;
-//
-//resultMatrix = matOp.solveLUfactorization(A, vectorB);
-
-
-
-/*Matrix testVect = matOp.createSpecVectorB(5, 5);
-Matrix testMat = matOp.createBandMatrix(5 + 3, -1, -1, 5);
-
-for (int i = 0; i < 5; ++i) {
-for (int j = 0; j < 5; ++j) {
-cout << testMat(i, j) << "\t";
-}
-cout << endl;
-}
-cout << endl;
-testVect = testMat * testVect;
-for (int i = 0; i < 5; ++i) {
-cout << testVect(i) << endl;
-}
-cout << endl;
-getchar();*/
-
-
-
-//
-//Matrix test(3, 3);
-//test(0) = 1;
-//test(1) = 2;
-//test(2) = 3;
-//test(3) = 4;
-//test(4) = 5;
-//test(5) = 6;
-//test(6) = 7;
-//test(7) = 8;
-//test(8) = 9;
-//cout << test(2, 0);
-//getchar();
-
-
-
-
-//

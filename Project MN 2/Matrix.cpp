@@ -1,5 +1,6 @@
 #include "Matrix.h"
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 
@@ -39,8 +40,8 @@ void Matrix::print(int n, int m)
 {
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j)
-			std::cout << (*this)(i, j) << " ";
-		cout << endl;
+			printf(" % .2f", (*this)(i, j));
+		printf("\n");
 	}
 }
 
